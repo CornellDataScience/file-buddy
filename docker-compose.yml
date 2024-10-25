@@ -1,0 +1,12 @@
+services:
+  file_monitor:
+    build: .
+    volumes:
+      - type: bind
+        source: ${HOST_FOLDER}
+        target: /app/target
+        read_only: true
+    environment:
+      - MONITOR_DIR=target
+      - PYTHONUNBUFFERED=1
+    command: python app.py
