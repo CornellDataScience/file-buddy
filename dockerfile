@@ -19,4 +19,4 @@ COPY . .
 ENV MONITOR_DIR=/path/in/container
 
 # Run the application
-CMD ["python", "your_script.py"]
+CMD ["python", "app.py"]
