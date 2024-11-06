@@ -5,7 +5,7 @@ services:
       - type: bind
         source: ${HOST_FOLDER}
         target: /app/target
-        read_only: true
+        read_only: false
     environment:
       - MONITOR_DIR=target
       - PYTHONUNBUFFERED=1
