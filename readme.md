@@ -9,3 +9,5 @@ docker compose up --build
 ```
 
 Any changes you make to the files in `$HOST_FOLDER` will be logged in the console.
+
+You can also search for image files that you added to the host folder by visiting `http://localhost:8000/docs` and entering a search query in the json body.
