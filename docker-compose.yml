@@ -6,7 +6,8 @@ services:
         source: ${HOST_FOLDER}
         target: /app/target
         read_only: false
+    env_file:
+      - .env
     environment:
       - MONITOR_DIR=target
       - PYTHONUNBUFFERED=1
-    command: python app.py
