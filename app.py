@@ -1,21 +1,11 @@
 import os
 from watchdog.observers.polling import PollingObserver as Observer
-from watchdog.events import FileSystemEventHandler
 import time
 import logging
+from file_handler import ChangeHandler
 
 LOGGER = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-class ChangeHandler(FileSystemEventHandler):
-    def on_created(self, event):
-        LOGGER.info(f'File {event.src_path} has been created')
-
-    def on_modified(self, event):
-        LOGGER.info(f'File {event.src_path} has been modified')
-
-    def on_deleted(self, event):
-        LOGGER.info(f'File {event.src_path} has been deleted')
 
 if __name__ == "__main__":
     LOGGER.info("Starting file monitor ...")
@@ -29,5 +19,6 @@ if __name__ == "__main__":
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
+        LOGGER.info("Shutting down...")
         observer.stop()
     observer.join()

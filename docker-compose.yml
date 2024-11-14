@@ -9,4 +9,19 @@ services:
     environment:
       - MONITOR_DIR=target
       - PYTHONUNBUFFERED=1
+      - PINECONE_API_KEY=${PINECONE_API_KEY}
+      - PINECONE_INDEX_NAME=${PINECONE_INDEX_NAME}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - USER_ID=${USER_ID}
     command: python app.py
+  query_handler:
+    build: .
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PINECONE_API_KEY=${PINECONE_API_KEY}
+      - PINECONE_INDEX_NAME=${PINECONE_INDEX_NAME}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - USER_ID=${USER_ID}
+    ports:
+      - "8000:8000"
+    command: uvicorn query:app --host 0.0.0.0 --port 8000
