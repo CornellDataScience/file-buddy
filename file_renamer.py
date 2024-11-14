@@ -66,7 +66,7 @@ class FileRenameHandler:
             LOGGER.error(f"Invalid regex pattern: {e}")
             return False
             
-    def process_rename_request(self, directory: str, naming_request: str) -> Dict[str, str]:
+    def process_rename_request(self, directory: str, naming_request: str, max_retries: int = 3) -> Dict[str, str]:
         """Process the rename request and return mapping of old to new names."""
         # Get list of files in directory
         files = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
@@ -74,32 +74,37 @@ class FileRenameHandler:
         if not files:
             LOGGER.warning(f"No files found in directory: {directory}")
             return {}
+        retries = 0
+        while retries < max_retries:
+
+            # Generate GPT prompt and get response
+            prompt = self._generate_rename_prompt(files, naming_request)
             
-        # Generate GPT prompt and get response
-        prompt = self._generate_rename_prompt(files, naming_request)
-        
-        try:
-            response: ChatCompletion = self.client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    {"role": "system", "content": "You are a helpful assistant that generates regex patterns and filenames based on naming conventions."},
-                    {"role": "user", "content": prompt}
-                ]
-            )
-            
-            # Parse GPT response
-            regex_pattern, name_mappings = self._parse_gpt_response(response.choices[0].message.content)
-            
-            # Validate new names against regex
-            new_names = list(name_mappings.values())
-            if not self._validate_new_names(regex_pattern, new_names):
-                raise ValueError("Generated names don't match the regex pattern")
+            try:
+                response: ChatCompletion = self.client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[
+                        {"role": "system", "content": "You are a helpful assistant that generates regex patterns and filenames based on naming conventions."},
+                        {"role": "user", "content": prompt}
+                    ]
+                )
                 
-            return name_mappings
-            
-        except Exception as e:
-            LOGGER.error(f"Error in rename request processing: {e}")
-            raise
+                # Parse GPT response
+                regex_pattern, name_mappings = self._parse_gpt_response(response.choices[0].message.content)
+                
+                # Validate new names against regex
+                new_names = list(name_mappings.values())
+                if self._validate_new_names(regex_pattern, new_names):
+                    return name_mappings
+                else: 
+                    LOGGER.warning("Generated names don't match the regex pattern")
+                    retries += 1    
+                
+            except Exception as e:
+                LOGGER.error(f"Error in rename request processing: {e}")
+                raise
+        LOGGER.error("Maximum number of retries reached. Could not generate valid filenames.")
+        raise ValueError("Could not generate valid file names after " + str(max_retries) + " attempts.")
             
     def apply_rename(self, directory: str, name_mappings: Dict[str, str]) -> None:
         """Apply the rename operations to files in the directory."""

@@ -9,8 +9,8 @@ LOGGER = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Example naming request - in production this should come from some sort of user interface
-NAMING_REQUEST = "I want the files in this folder to be called homework then an underscore then the number of the homework"
-
+#NAMING_REQUEST = "I want the files in this folder to be called homework then an underscore then the number of the homework"
+NAMING_REQUEST = "I want the files in this folder to be named after the teenage mutant ninja turtles"
 class ChangeHandler(FileSystemEventHandler):
     def __init__(self, renamer: FileRenameHandler):
         super().__init__()
